@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>pixel's game review</title>
+  <link rel="icon" type="image/png" href="../icons/pawn-48.png">
+  <link rel="stylesheet" href="page.css">
+  <link rel="stylesheet" href="flags.css">
+  <script src="startup.js" defer></script><script src="runtime.js" defer></script><script src="tactics.js" defer></script><script src="analysis.js" defer></script><script src="core.js" defer></script><script src="board.js" defer></script><script src="avatars.js" defer></script><script src="countries.js" defer></script><script src="flag-codes.js" defer></script><script src="settings.js" defer></script><script src="page.js" defer></script>
+</head>
+<body>
+  <div id="status" role="status" aria-live="polite"></div>
+  <section id="import-panel" class="import-panel">
+    <div class="import-card">
+      <div class="import-mark">★</div><h1>pixel's game review</h1>
+      <p>Paste a Chess.com game link or a PGN to review a finished game, or a FEN to analyse a position.</p>
+      <label for="game-link">Chess.com game link</label><input id="game-link" type="url" placeholder="https://www.chess.com/game/live/…">
+      <div class="or">or paste a PGN or FEN</div>
+      <label for="pgn">Game PGN or position FEN</label><textarea id="pgn" rows="7" placeholder='[White "Player"]&#10;[Black "Opponent"]&#10;&#10;1. e4 e5 2. Nf3 Nc6'></textarea>
+      <div class="import-actions"><label class="file-button">Choose PGN file<input id="pgn-file" type="file" accept=".pgn,.txt"></label><button id="analyze" class="primary">Analyze</button></div>
+      <p class="fine">Analysis runs on your device. Chess.com links use its public game archive.</p>
+    </div>
+  </section>
+  <div id="busy" hidden><progress max="100" value="0" aria-label="Review progress"></progress><button id="cancel" class="subtle">Cancel</button></div>
+  <main id="review" hidden>
+    <div class="review-grid">
+      <div class="board-column"><button id="flip-top" class="board-flip-icon" title="Flip board" aria-label="Flip board"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v14m0-14-3 3m3-3 3 3M16 21V7m0 14-3-3m3 3 3-3"/></svg></button><button id="settings-open" class="board-flip-icon board-settings-icon" title="Settings" aria-label="Settings" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"/><path d="M19.4 13.5a7.7 7.7 0 0 0 0-3l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-2.6-1.5L14 2.5h-4l-.4 2.5A7.6 7.6 0 0 0 7 6.5l-2.4-1-2 3.4 2 1.6a7.7 7.7 0 0 0 0 3l-2 1.6 2 3.4 2.4-1a7.6 7.6 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.6 7.6 0 0 0 2.6-1.5l2.4 1 2-3.4-2-1.6Z"/></svg></button>
+        <div class="player-strip" id="top-player"><span class="avatar">♟</span><span class="player-meta"><span class="player-identity"><strong id="top-name">Black</strong><small id="top-rating"></small><span id="top-flag" class="player-flag" hidden></span><img id="top-flair" class="player-flair" alt="Player flair" hidden></span><span id="top-captured" class="captured" role="img"></span></span><span class="player-result" id="top-result"><span id="top-clock-icon" class="clock-icon"><svg data-glyph="time-clock-hollow" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m15.97 15.3-3.7-2c-.9-.5-1.27-1.1-1.27-2.13v-5.1c0-.6.4-1 1-1s1 .4 1 1v5.33l4.03 2.27c1.1.6.2 2.33-1.07 1.63zm-3.97 7.2c-5.77 0-10.5-4.73-10.5-10.5s4.73-10.5 10.5-10.5 10.5 4.73 10.5 10.5-4.73 10.5-10.5 10.5zm0-2c4.67 0 8.5-3.83 8.5-8.5s-3.83-8.5-8.5-8.5-8.5 3.83-8.5 8.5 3.83 8.5 8.5 8.5z"/></svg></span><span id="top-clock" class="clock-time"></span></span></div>
+        <div class="board-wrap"><div class="eval-bar" role="meter" aria-label="Position evaluation" aria-valuemin="-10" aria-valuemax="10"><div id="eval-fill"></div><strong id="evaluation">0.0</strong></div><div id="board" aria-label="Chess board"></div></div>
+        <div class="player-strip" id="bottom-player"><span class="avatar">♙</span><span class="player-meta"><span class="player-identity"><strong id="bottom-name">White</strong><small id="bottom-rating"></small><span id="bottom-flag" class="player-flag" hidden></span><img id="bottom-flair" class="player-flair" alt="Player flair" hidden></span><span id="bottom-captured" class="captured" role="img"></span></span><span class="player-result" id="bottom-result"><span id="bottom-clock-icon" class="clock-icon"><svg data-glyph="time-clock-hollow" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m15.97 15.3-3.7-2c-.9-.5-1.27-1.1-1.27-2.13v-5.1c0-.6.4-1 1-1s1 .4 1 1v5.33l4.03 2.27c1.1.6.2 2.33-1.07 1.63zm-3.97 7.2c-5.77 0-10.5-4.73-10.5-10.5s4.73-10.5 10.5-10.5 10.5 4.73 10.5 10.5-4.73 10.5-10.5 10.5zm0-2c4.67 0 8.5-3.83 8.5-8.5s-3.83-8.5-8.5-8.5-8.5 3.83-8.5 8.5 3.83 8.5 8.5 8.5z"/></svg></span><span id="bottom-clock" class="clock-time"></span></span></div>
+        <div class="board-tools"><button id="flip" class="text-button">⇅ Flip board</button><button id="download" class="text-button">⇩ Download PGN</button><button id="new-game" class="text-button">＋ New game</button></div>
+      </div>
+      <aside class="review-panel">
+        <div class="panel-header"><button id="back-overview" class="header-icon" title="Overview" hidden>←</button><span class="panel-title"><img class="title-star" src="../icons/magnifier-star.svg" alt=""> Game Review</span><span class="panel-actions"><button id="voice-toggle" class="header-icon" title="Toggle move sounds" aria-pressed="true" aria-label="Toggle board sounds"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3zm12-1.5c1.4 1 2.2 2.6 2.2 4.5s-.8 3.5-2.2 4.5m2.8-12c2.3 1.8 3.7 4.5 3.7 7.5s-1.4 5.7-3.7 7.5"/></svg></button></span></div>
+        <div class="coach-menu" id="coach-menu" role="dialog" aria-label="Choose a coach" hidden><div class="coach-menu-heading"><strong>Choose a coach</strong><button id="close-coach-menu" aria-label="Close coach menu">×</button></div><div id="coach-grid" class="coach-grid"></div></div>
+        <section id="overview" class="panel-section">
+          <div class="panel-scroll">
+            <div class="coach-area"><div class="coach-identity"><img id="overview-avatar" class="coach-avatar" src="assets/coaches/coachdavid.png" alt="David"><button id="overview-coach-name" class="coach-name" aria-controls="coach-menu" aria-expanded="false">David</button></div><div class="coach-bubble" id="overview-message">Your review is ready.</div></div>
+            <div id="perspective-line" class="perspective-line"></div><div class="graph-wrap"><svg id="overview-graph" viewBox="0 0 640 100" aria-label="Game evaluation graph"></svg></div>
+            <div class="score-table"><div class="score-row player-names"><span></span><strong id="white-player-name">White</strong><strong id="black-player-name">Black</strong></div><div class="score-row headings"><span>Players</span><span id="white-player-avatar" class="score-avatar">♙</span><span id="black-player-avatar" class="score-avatar">♟</span></div><div class="score-row"><span>Accuracy</span><strong id="white-accuracy" class="white-score">—</strong><strong id="black-accuracy" class="black-score">—</strong></div></div>
+            <div id="tallies" class="stats"></div>
+            <div class="score-table"><div class="score-row"><span>Game Rating</span><strong id="white-rating">—</strong><strong id="black-rating">—</strong></div></div>
+            <div id="phases" class="stats phase-stats"></div>
+            <div class="overview-end" id="game-result"></div>
+          </div>
+          <button id="start-review" class="primary sticky-start">Start Review</button>
+        </section>
+        <section id="move-view" class="panel-section" hidden>
+          <div class="coach-area move-coach"><div class="coach-identity"><img id="move-avatar" class="coach-avatar" src="assets/coaches/coachdavid.png" alt="David"><button id="move-coach-name" class="coach-name" aria-controls="coach-menu" aria-expanded="false">David</button></div><div class="coach-bubble"><div class="bubble-heading"><span><img id="coach-badge" alt="" src="../icons/cls-best.png"><strong id="move-heading">Ready to review</strong></span><b id="move-eval">0.00</b></div><p id="explanation">Select a move to see the coach's explanation.</p></div></div>
+          <div class="action-row"><button id="explain" class="secondary action-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21h6m-5-3h4m-8-7a6 6 0 1 1 12 0c0 2.2-1.1 3.5-2.4 4.7-.8.8-1.1 1.4-1.1 2.3h-5c0-.9-.3-1.5-1.1-2.3C7.1 14.5 6 13.2 6 11Z"/></svg>Explain</button><button id="best" class="secondary action-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.8 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 2.8Z"/></svg>Best</button><button id="follow" class="secondary action-button" hidden title="Play out the engine’s follow-up line"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h10m-10 6h7m-7 6h10M17 9l4 3-4 3"/></svg>Follow-up</button><button id="next" class="primary action-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m-5-5 5 5-5 5"/></svg>Next</button><button id="resume" class="primary action-button" hidden>▶ Resume</button><button id="explain-back" class="secondary action-button explain-control" hidden aria-label="Previous coaching idea"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5-7 7 7 7"/></svg></button><button id="explain-forward" class="secondary action-button explain-control" hidden aria-label="Next coaching idea"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 5 7 7-7 7"/></svg></button><button id="got-it" class="primary action-button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4.2 4.2L19 6.5"/></svg>Got it!</button></div>
+          <div id="branch-message" class="branch-message" hidden></div>
+          <div id="moves" class="moves" aria-label="Game moves"></div>
+          <div class="graph-wrap move-graph"><svg id="graph" viewBox="0 0 640 100" aria-label="Game evaluation graph. Click to select a move."></svg></div>
+          <div class="navigation"><button id="first" title="Start" aria-label="Start"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3v18M19 4 9 12l10 8"/></svg></button><button id="previous" title="Previous" aria-label="Previous"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m16 4-9 8 9 8"/></svg></button><button id="play" title="Play or pause" aria-label="Play or pause"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z" fill="currentColor" stroke="none"/></svg></button><button id="forward" title="Next" aria-label="Next"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 4 9 8-9 8"/></svg></button><button id="last" title="End" aria-label="End"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 4 10 8-10 8M20 3v18"/></svg></button></div>
+        </section>
+      </aside>
+    </div>
+  </main>
+</body>
+</html>
