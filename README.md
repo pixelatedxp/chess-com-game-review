@@ -2,8 +2,6 @@
 
 A Chrome extension that reviews finished Chess.com games with a local engine. It labels every move, scores accuracy for both sides, estimates a game rating, and has a coach explain what happened. Reviews run on your machine and are saved in the browser.
 
-This is a private copy. It bundles Chess.com's engine and artwork, so it is not meant to be public.
-
 ![Game review](docs/review.png)
 
 ![Overview](docs/overview.png)
