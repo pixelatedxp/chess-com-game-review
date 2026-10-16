@@ -50,4 +50,3 @@ The gear under the flip icon opens Settings. It covers perspective, username, ho
 ## Notes
 
 Scores, accuracy, labels and ratings are local estimates and do not reproduce Chess.com's hosted analysis.
-"# chess-com-game-review" 
